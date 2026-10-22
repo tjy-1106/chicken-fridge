@@ -1,4 +1,5 @@
 /* Chicken Fridge. Flat illustrated style: ink outlines, hard offset shadows, palette colours only. */
+/* --orange was added later for the Add food button. */
 
 :root {
   --cream: #FFF6E0;
@@ -8,6 +9,7 @@
   --wheat: #F2D49B;
   --tomato: #E2553A;
   --white: #FFFFFF;
+  --orange: #F39A3B;
 
   --line: 2px solid var(--ink);
   --shadow: 3px 3px 0 var(--ink);
@@ -241,6 +243,13 @@ textarea.input { resize: vertical; line-height: 1.4; }
 .check-result .mascot-img, .check-result .mascot-missing { height: 110px; flex: none; }
 .check .hint { margin-top: 0; }
 .detail-delete { margin-top: 12px; }
+
+.added-banner {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding: 10px 12px;
+  background: var(--mint); border: var(--line); border-radius: 10px; font-weight: 700;
+}
+.added-banner .icon { width: 20px; height: 20px; }
+.add-done { margin-top: 12px; }
 .fridge { display: flex; align-items: stretch; filter: drop-shadow(4px 4px 0 var(--ink)); }
 .fridge-body {
   flex: 1; min-width: 0;
@@ -311,10 +320,11 @@ textarea.input { resize: vertical; line-height: 1.4; }
   position: fixed; z-index: 15; right: 16px; bottom: calc(var(--nav-h) + 18px + env(safe-area-inset-bottom));
   display: inline-flex; align-items: center; justify-content: center;
   width: 60px; height: 60px; padding: 0;
-  background: var(--mint); border: var(--line); border-radius: 16px; box-shadow: var(--shadow);
+  background: var(--orange); border: var(--line); border-radius: 16px; box-shadow: var(--shadow);
   transition: transform .06s, box-shadow .06s;
 }
 .fab .icon { width: 30px; height: 30px; }
+.fab-label { display: none; }
 .badge {
   position: absolute; top: -10px; right: -10px;
   min-width: 26px; height: 26px; padding: 0 6px;
@@ -520,7 +530,9 @@ button.row-main:hover { background: var(--white); }
   .perch { right: 64px; }
   .demo-panel { left: auto; right: 16px; bottom: 16px; }
   .fridge-door { width: 34px; }
-  .fab { position: absolute; right: 6px; bottom: -8px; }
+  /* Narrow desktop: the header has no room beside the bin chicken, so the button floats. */
+  .fab { right: 24px; bottom: 24px; }
+  .demo-panel { bottom: 100px; }
   #toast { top: auto; bottom: 24px; left: 108px; }
 
   .sheet {
@@ -537,6 +549,16 @@ button.row-main:hover { background: var(--white); }
 @media (min-width: 900px) {
   .nav { width: 196px; padding: 22px 14px; }
   .brand { display: block; margin: 0 6px 18px; font: 800 26px/1 var(--head); }
+
+  /* Wide desktop: a labelled button at the top right of the page. */
+  .fab {
+    position: relative; right: auto; bottom: auto; flex: none;
+    width: auto; height: 54px; gap: 6px; padding: 0 20px 0 14px;
+    font: 800 20px/1 var(--head);
+  }
+  .fab .icon { width: 26px; height: 26px; }
+  .fab-label { display: inline; }
+  .demo-panel { bottom: 16px; }
   .nav a { flex-direction: row; justify-content: flex-start; gap: 10px; min-height: 52px; padding: 0 12px; font-size: 16px; }
   main { margin-left: 196px; padding: 30px 40px 48px; }
   #toast { left: 212px; }

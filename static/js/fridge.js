@@ -56,7 +56,10 @@ export function drawFridge() {
   ].filter(Boolean).join(' · ');
 
   setChildren(root,
-    h('header', { class: 'page-head' }, h('h1', null, 'My Fridge'), h('p', { class: 'sub' }, summary)),
+    h('header', { class: 'page-head with-action fridge-head' },
+      h('div', null, h('h1', null, 'My Fridge'), h('p', { class: 'sub' }, summary)),
+      // Top right on desktop; floats bottom right on phones (see .fab in the CSS).
+      fabEl()),
     h('div', { class: 'fridge-layout' },
       h('div', { class: 'fridge-stage' },
         mascotEl(),
@@ -65,8 +68,7 @@ export function drawFridge() {
             h('div', { class: 'fridge-brow' }, h('span', { class: 'fridge-light' }), h('span', { class: 'fridge-vent' })),
             ZONES.map(zoneEl)),
           doorEl()),
-        h('div', { class: 'fridge-feet' }, h('i'), h('i')),
-        fabEl()),
+        h('div', { class: 'fridge-feet' }, h('i'), h('i'))),
       h('aside', { class: 'side-panel', id: 'fridge-panel', 'aria-label': 'Details' })),
     demoPanel(),
   );
@@ -191,7 +193,7 @@ function fabEl() {
   return h('button', {
     class: 'fab', type: 'button', onclick: () => openAdd(),
     'aria-label': n ? `Add item. ${n} bought ${n === 1 ? 'item' : 'items'} waiting to be stored` : 'Add item',
-  }, icon('plus'), n ? h('span', { class: 'badge' }, n) : null);
+  }, icon('plus'), h('span', { class: 'fab-label' }, 'Add food'), n ? h('span', { class: 'badge' }, n) : null);
 }
 
 // Lay food chips out on shelves; whatever doesn't fit collapses into a "+N" chip.
@@ -426,12 +428,17 @@ function itemForm({ initial = {}, lockDefaults = false, submitLabel, onSubmit })
 
 // ---------------------------------------------------------------- add panel
 
+// The panel stays open after each item, so several can be added in a row.
+// Only the close button (or Done) closes it.
 function openAdd() {
   const body = h('div', { class: 'add-panel' });
+  const added = []; // names saved since the panel opened
 
   // `from` is the bought list item being stored, or null for a brand-new item.
   const mount = (from) => {
     setChildren(body,
+      added.length ? h('p', { class: 'added-banner', role: 'status' }, icon('check'),
+        added.length === 1 ? `${added[0]} is in the fridge` : `Added: ${added.join(', ')}`) : null,
       state.pending.length ? h('section', { class: 'pending' },
         h('h3', null, h('span', { class: 'dot' }), 'Bought, not stored yet'),
         h('p', { class: 'sub' }, 'Tap one to fill in the form.'),
@@ -449,14 +456,15 @@ function openAdd() {
         submitLabel: 'Put in fridge',
         onSubmit: async (data) => {
           await api.post('/fridge', { ...data, from_list_id: from?.id });
-          toast(`${data.name} is in the fridge`);
+          added.push(data.name);
           await load();
           drawFridge();
-          // Keep the panel open while there are more bought items to put away.
-          if (from && state.pending.length) mount(null);
-          else closeSheet();
+          mount(null);
+          // Ready for the next item. Skip on touch screens, where focus pops up the keyboard.
+          if (window.matchMedia('(pointer: fine)').matches) body.querySelector('.ac input')?.focus();
         },
-      }));
+      }),
+      h('button', { class: 'btn wide add-done', type: 'button', onclick: closeSheet }, 'Done'));
   };
 
   mount(null);
